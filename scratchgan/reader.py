@@ -121,15 +121,18 @@ def get_raw_data(data_path, dataset, truncate_vocab=20000):
   if dataset not in FILENAMES:
     raise ValueError("Invalid dataset {}. Valid datasets: {}".format(
         dataset, FILENAMES.keys()))
-  train_file, valid_file, _ = FILENAMES[dataset]
+  train_file, valid_file, test_file = FILENAMES[dataset]
 
   train_path = os.path.join(data_path, train_file)
   valid_path = os.path.join(data_path, valid_file)
+  test_path = os.path.join(data_path, test_file)
 
   with gfile.GFile(train_path, "r") as json_file:
     json_data_train = json.load(json_file)
   with gfile.GFile(valid_path, "r") as json_file:
     json_data_valid = json.load(json_file)
+  with gfile.GFile(test_path, "r") as json_file:
+    json_data_test = json.load(json_file)
 
   word_to_id = _build_vocab(json_data_train)
   logging.info("Full vocab length: %d", len(word_to_id))
@@ -141,13 +144,16 @@ def get_raw_data(data_path, dataset, truncate_vocab=20000):
 
   train_data = _integerize(json_data_train, word_to_id_truncated, dataset)
   valid_data = _integerize(json_data_valid, word_to_id_truncated, dataset)
+  test_data = _integerize(json_data_test, word_to_id_truncated, dataset)
 
   with open('word_to_id_truncated.json', 'w') as f:
       json.dump(word_to_id_truncated, f)
   np.save('train_data_sequences.npy', train_data['sequences'])
   np.save('valid_data_sequences.npy', valid_data['sequences'])
+  np.save('test_data_sequences.npy', test_data['sequences'])
   np.save('train_data_sequence_lengths.npy', train_data['sequence_lengths'])
   np.save('valid_data_sequence_lengths.npy', valid_data['sequence_lengths'])
+  np.save('test_data_sequence_lengths.npy', test_data['sequence_lengths'])
   print('DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
   return train_data, valid_data, word_to_id_truncated
 
