@@ -139,8 +139,17 @@ def get_raw_data(data_path, dataset, truncate_vocab=20000):
   }
   logging.info("Truncated vocab length: %d", len(word_to_id_truncated))
 
+  id_to_word_truncated = [word for word, _ in sorted(word_to_id_truncated.items(), key=lambda x: x[1])]
+  assert len(id_to_word_truncated) == len(word_to_id_truncated)
+  print('get_raw_data: id_to_word_truncated:', len(id_to_word_truncated))
+  print(id_to_word_truncated[:100])
+  np.save('id_to_word_truncated.npy', id_to_word_truncated)
+
   train_data = _integerize(json_data_train, word_to_id_truncated, dataset)
   valid_data = _integerize(json_data_valid, word_to_id_truncated, dataset)
+  np.save('train_data.npy', train_data)
+  np.save('valid_data.npy', valid_data)
+  print('DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
   return train_data, valid_data, word_to_id_truncated
 
 
