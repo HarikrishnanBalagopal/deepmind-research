@@ -139,3 +139,10 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+test_data_sequence_lengths.npy
+test_data_sequences.npy
+train_data_sequence_lengths.npy
+train_data_sequences.npy
+valid_data_sequence_lengths.npy
+valid_data_sequences.npy
+word_to_id_truncated.json
