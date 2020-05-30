@@ -32,36 +32,41 @@ from tvt.pycolab import key_to_door
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_enum('game', 'key_to_door',
-                  ['key_to_door', 'active_visual_match'],
-                  'The name of the game')
+flags.DEFINE_enum(
+    "game",
+    "key_to_door",
+    ["key_to_door", "active_visual_match"],
+    "The name of the game",
+)
 
 
 def main(unused_argv):
 
-  rng = np.random.RandomState()
+    rng = np.random.RandomState()
 
-  if FLAGS.game == 'key_to_door':
-    game = key_to_door.Game(rng)
-  elif FLAGS.game == 'active_visual_match':
-    game = active_visual_match.Game(rng)
-  else:
-    raise ValueError('Unsupported game "%s".' % FLAGS.game)
-  episode = game.make_episode()
+    if FLAGS.game == "key_to_door":
+        game = key_to_door.Game(rng)
+    elif FLAGS.game == "active_visual_match":
+        game = active_visual_match.Game(rng)
+    else:
+        raise ValueError('Unsupported game "%s".' % FLAGS.game)
+    episode = game.make_episode()
 
-  ui = human_ui.CursesUi(
-      keys_to_actions={
-          curses.KEY_UP: common.ACTION_NORTH,
-          curses.KEY_DOWN: common.ACTION_SOUTH,
-          curses.KEY_LEFT: common.ACTION_WEST,
-          curses.KEY_RIGHT: common.ACTION_EAST,
-          -1: common.ACTION_DELAY,
-          'q': common.ACTION_QUIT,
-          'Q': common.ACTION_QUIT},
-      delay=-1,
-      colour_fg=game.colours
-      )
-  ui.play(episode)
+    ui = human_ui.CursesUi(
+        keys_to_actions={
+            curses.KEY_UP: common.ACTION_NORTH,
+            curses.KEY_DOWN: common.ACTION_SOUTH,
+            curses.KEY_LEFT: common.ACTION_WEST,
+            curses.KEY_RIGHT: common.ACTION_EAST,
+            -1: common.ACTION_DELAY,
+            "q": common.ACTION_QUIT,
+            "Q": common.ACTION_QUIT,
+        },
+        delay=-1,
+        colour_fg=game.colours,
+    )
+    ui.play(episode)
 
-if __name__ == '__main__':
-  app.run(main)
+
+if __name__ == "__main__":
+    app.run(main)

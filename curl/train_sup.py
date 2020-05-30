@@ -20,45 +20,46 @@ from absl import flags
 
 from curl import training
 
-flags.DEFINE_enum('dataset', 'mnist', ['mnist', 'omniglot'], 'Dataset.')
+flags.DEFINE_enum("dataset", "mnist", ["mnist", "omniglot"], "Dataset.")
 
 FLAGS = flags.FLAGS
 
 
 def main(unused_argv):
-  training.run_training(
-      dataset=FLAGS.dataset,
-      output_type='bernoulli',
-      n_y=10,
-      n_y_active=10,
-      training_data_type='sequential',
-      n_concurrent_classes=2,
-      lr_init=1e-3,
-      lr_factor=1.,
-      lr_schedule=[1],
-      train_supervised=True,
-      blend_classes=False,
-      n_steps=100000,
-      report_interval=10000,
-      knn_values=[],
-      random_seed=1,
-      encoder_kwargs={
-          'encoder_type': 'multi',
-          'n_enc': [400, 400],
-          'enc_strides': [1],
-      },
-      decoder_kwargs={
-          'decoder_type': 'single',
-          'n_dec': [400, 400],
-          'dec_up_strides': None,
-      },
-      n_z=32,
-      dynamic_expansion=False,
-      ll_thresh=-10000.0,
-      classify_with_samples=False,
-      gen_replay_type='fixed',
-      use_supervised_replay=False,
-      )
+    training.run_training(
+        dataset=FLAGS.dataset,
+        output_type="bernoulli",
+        n_y=10,
+        n_y_active=10,
+        training_data_type="sequential",
+        n_concurrent_classes=2,
+        lr_init=1e-3,
+        lr_factor=1.0,
+        lr_schedule=[1],
+        train_supervised=True,
+        blend_classes=False,
+        n_steps=100000,
+        report_interval=10000,
+        knn_values=[],
+        random_seed=1,
+        encoder_kwargs={
+            "encoder_type": "multi",
+            "n_enc": [400, 400],
+            "enc_strides": [1],
+        },
+        decoder_kwargs={
+            "decoder_type": "single",
+            "n_dec": [400, 400],
+            "dec_up_strides": None,
+        },
+        n_z=32,
+        dynamic_expansion=False,
+        ll_thresh=-10000.0,
+        classify_with_samples=False,
+        gen_replay_type="fixed",
+        use_supervised_replay=False,
+    )
 
-if __name__ == '__main__':
-  app.run(main)
+
+if __name__ == "__main__":
+    app.run(main)

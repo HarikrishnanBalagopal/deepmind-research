@@ -22,19 +22,23 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-REQUIRED_PACKAGES = ['numpy', 'dm-sonnet==1.35', 'tensorflow==1.14',
-                     'tensorflow-probability==0.7.0']
+REQUIRED_PACKAGES = [
+    "numpy",
+    "dm-sonnet==1.35",
+    "tensorflow==1.14",
+    "tensorflow-probability==0.7.0",
+]
 
 setup(
-    name='hpu_net',
-    version='0.1',
-    description='A library for the Hierarchical Probabilistic U-Net model.',
-    url='https://github.com/deepmind/deepmind-research/hierarchical_probabilistic_unet',
-    author='DeepMind',
-    author_email='no-reply@google.com',
+    name="hpu_net",
+    version="0.1",
+    description="A library for the Hierarchical Probabilistic U-Net model.",
+    url="https://github.com/deepmind/deepmind-research/hierarchical_probabilistic_unet",
+    author="DeepMind",
+    author_email="no-reply@google.com",
     # Contained modules and scripts.
     packages=find_packages(),
     install_requires=REQUIRED_PACKAGES,
-    platforms=['any'],
-    license='Apache 2.0',
+    platforms=["any"],
+    license="Apache 2.0",
 )

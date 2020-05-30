@@ -20,38 +20,41 @@ from cs_gan import gan
 
 
 class DummyGenerator(snt.AbstractModule):
+    def __init__(self):
+        super(DummyGenerator, self).__init__(name="dummy_generator")
 
-  def __init__(self):
-    super(DummyGenerator, self).__init__(name='dummy_generator')
-
-  def _build(self, inputs, is_training):
-    return snt.Linear(10)(inputs)
+    def _build(self, inputs, is_training):
+        return snt.Linear(10)(inputs)
 
 
 class GanTest(tf.test.TestCase):
+    def testConnect(self):
+        discriminator = snt.Linear(2)
+        generator = DummyGenerator()
+        model = gan.GAN(
+            discriminator,
+            generator,
+            num_z_iters=0,
+            z_step_size=0.1,
+            z_project_method="none",
+            optimisation_cost_weight=0.0,
+        )
 
-  def testConnect(self):
-    discriminator = snt.Linear(2)
-    generator = DummyGenerator()
-    model = gan.GAN(
-        discriminator, generator,
-        num_z_iters=0, z_step_size=0.1,
-        z_project_method='none', optimisation_cost_weight=0.0)
+        generator_inputs = tf.ones((16, 3), dtype=tf.float32)
+        data = tf.ones((16, 10))
+        opt_compoments, _ = model.connect(data, generator_inputs)
 
-    generator_inputs = tf.ones((16, 3), dtype=tf.float32)
-    data = tf.ones((16, 10))
-    opt_compoments, _ = model.connect(data, generator_inputs)
+        self.assertIn("disc", opt_compoments)
+        self.assertIn("gen", opt_compoments)
 
-    self.assertIn('disc', opt_compoments)
-    self.assertIn('gen', opt_compoments)
-
-    self.assertCountEqual(
-        opt_compoments['disc'].vars,
-        discriminator.get_variables())
-    self.assertCountEqual(
-        opt_compoments['gen'].vars,
-        generator.get_variables() + model._log_step_size_module.get_variables())
+        self.assertCountEqual(
+            opt_compoments["disc"].vars, discriminator.get_variables()
+        )
+        self.assertCountEqual(
+            opt_compoments["gen"].vars,
+            generator.get_variables() + model._log_step_size_module.get_variables(),
+        )
 
 
-if __name__ == '__main__':
-  tf.test.main()
+if __name__ == "__main__":
+    tf.test.main()

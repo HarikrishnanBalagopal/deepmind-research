@@ -20,7 +20,7 @@ import tensorflow as tf  # pylint: disable=g-explicit-tensorflow-version-import
 
 
 def distance_histogram_dict(f):
-  """Parses distance histogram dict pickle.
+    """Parses distance histogram dict pickle.
 
   Distance histograms are stored as pickles of dicts.
 
@@ -36,32 +36,35 @@ def distance_histogram_dict(f):
       min_range: left hand edge of the distance histogram
       max_range: the extent of the histogram NOT the right hand edge.
   """
-  contact_dict = pickle.load(f, encoding='latin1')
+    contact_dict = pickle.load(f, encoding="latin1")
 
-  num_res = len(contact_dict['sequence'])
+    num_res = len(contact_dict["sequence"])
 
-  if not all(key in contact_dict.keys()
-             for key in ['probs', 'num_bins', 'min_range', 'max_range']):
-    raise ValueError('The pickled contact dict doesn\'t contain all required '
-                     'keys: probs, num_bins, min_range, max_range but %s.' %
-                     contact_dict.keys())
-  if contact_dict['probs'].ndim != 3:
-    raise ValueError(
-        'Probs is not rank 3 but %d' % contact_dict['probs'].ndim)
-  if contact_dict['num_bins'] != contact_dict['probs'].shape[2]:
-    raise ValueError(
-        'The probs shape doesn\'t match num_bins in the third dimension. '
-        'Expected %d got %d.' % (contact_dict['num_bins'],
-                                 contact_dict['probs'].shape[2]))
-  if contact_dict['probs'].shape[:2] != (num_res, num_res):
-    raise ValueError(
-        'The first two probs dims (%i, %i) aren\'t equal to len(sequence) %i'
-        % (contact_dict['probs'].shape[0], contact_dict['probs'].shape[1],
-           num_res))
-  return contact_dict
+    if not all(
+        key in contact_dict.keys()
+        for key in ["probs", "num_bins", "min_range", "max_range"]
+    ):
+        raise ValueError(
+            "The pickled contact dict doesn't contain all required "
+            "keys: probs, num_bins, min_range, max_range but %s." % contact_dict.keys()
+        )
+    if contact_dict["probs"].ndim != 3:
+        raise ValueError("Probs is not rank 3 but %d" % contact_dict["probs"].ndim)
+    if contact_dict["num_bins"] != contact_dict["probs"].shape[2]:
+        raise ValueError(
+            "The probs shape doesn't match num_bins in the third dimension. "
+            "Expected %d got %d."
+            % (contact_dict["num_bins"], contact_dict["probs"].shape[2])
+        )
+    if contact_dict["probs"].shape[:2] != (num_res, num_res):
+        raise ValueError(
+            "The first two probs dims (%i, %i) aren't equal to len(sequence) %i"
+            % (contact_dict["probs"].shape[0], contact_dict["probs"].shape[1], num_res)
+        )
+    return contact_dict
 
 
 def parse_distance_histogram_dict(filepath):
-  """Parses distance histogram piclkle from filepath."""
-  with tf.io.gfile.GFile(filepath, 'rb') as f:
-    return distance_histogram_dict(f)
+    """Parses distance histogram piclkle from filepath."""
+    with tf.io.gfile.GFile(filepath, "rb") as f:
+        return distance_histogram_dict(f)

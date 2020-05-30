@@ -29,34 +29,27 @@ from glassy_dynamics import train
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string(
-    'data_directory',
-    '',
-    'Directory which contains the train or test datasets.')
-flags.DEFINE_integer(
-    'time_index',
-    9,
-    'The time index of the target mobilities.')
-flags.DEFINE_integer(
-    'max_files_to_load',
-    None,
-    'The maximum number of files to load.')
+    "data_directory", "", "Directory which contains the train or test datasets."
+)
+flags.DEFINE_integer("time_index", 9, "The time index of the target mobilities.")
+flags.DEFINE_integer("max_files_to_load", None, "The maximum number of files to load.")
 flags.DEFINE_string(
-    'checkpoint_path',
-    'checkpoints/t044_s09.ckpt',
-    'Path used to load the model.')
+    "checkpoint_path", "checkpoints/t044_s09.ckpt", "Path used to load the model."
+)
 
 
 def main(argv):
-  if len(argv) > 1:
-    raise app.UsageError('Too many command-line arguments.')
+    if len(argv) > 1:
+        raise app.UsageError("Too many command-line arguments.")
 
-  file_pattern = os.path.join(FLAGS.data_directory, 'aggregated*')
-  train.apply_model(
-      checkpoint_path=FLAGS.checkpoint_path,
-      file_pattern=file_pattern,
-      max_files_to_load=FLAGS.max_files_to_load,
-      time_index=FLAGS.time_index)
+    file_pattern = os.path.join(FLAGS.data_directory, "aggregated*")
+    train.apply_model(
+        checkpoint_path=FLAGS.checkpoint_path,
+        file_pattern=file_pattern,
+        max_files_to_load=FLAGS.max_files_to_load,
+        time_index=FLAGS.time_index,
+    )
 
 
-if __name__ == '__main__':
-  app.run(main)
+if __name__ == "__main__":
+    app.run(main)

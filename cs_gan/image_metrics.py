@@ -20,29 +20,29 @@ import tensorflow_gan as tfgan
 
 
 def get_image_metrics_for_samples(
-    real_images, generator, prior, data_processor, num_eval_samples):
-  """Compute inception score and FID."""
-  max_classifier_batch = 10
-  num_batches = num_eval_samples //  max_classifier_batch
+    real_images, generator, prior, data_processor, num_eval_samples
+):
+    """Compute inception score and FID."""
+    max_classifier_batch = 10
+    num_batches = num_eval_samples // max_classifier_batch
 
-  def sample_fn(arg):
-    del arg
-    samples = generator(prior.sample(max_classifier_batch))
-    # Ensure data is in [0, 1], as expected by TFGAN.
-    # Resizing to appropriate size is done by TFGAN.
-    return data_processor.postprocess(samples)
+    def sample_fn(arg):
+        del arg
+        samples = generator(prior.sample(max_classifier_batch))
+        # Ensure data is in [0, 1], as expected by TFGAN.
+        # Resizing to appropriate size is done by TFGAN.
+        return data_processor.postprocess(samples)
 
-  fake_outputs = tfgan.eval.sample_and_run_inception(
-      sample_fn,
-      sample_inputs=[1.0] * num_batches)  # Dummy inputs.
+    fake_outputs = tfgan.eval.sample_and_run_inception(
+        sample_fn, sample_inputs=[1.0] * num_batches
+    )  # Dummy inputs.
 
-  fake_logits = fake_outputs['logits']
-  inception_score = tfgan.eval.classifier_score_from_logits(fake_logits)
+    fake_logits = fake_outputs["logits"]
+    inception_score = tfgan.eval.classifier_score_from_logits(fake_logits)
 
-  real_outputs = tfgan.eval.run_inception(real_images, num_batches=num_batches)
-  fid = tfgan.eval.frechet_classifier_distance_from_activations(
-      real_outputs['pool_3'], fake_outputs['pool_3'])
+    real_outputs = tfgan.eval.run_inception(real_images, num_batches=num_batches)
+    fid = tfgan.eval.frechet_classifier_distance_from_activations(
+        real_outputs["pool_3"], fake_outputs["pool_3"]
+    )
 
-  return {
-      'inception_score': inception_score,
-      'fid': fid}
+    return {"inception_score": inception_score, "fid": fid}

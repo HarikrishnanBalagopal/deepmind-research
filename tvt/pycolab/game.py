@@ -25,20 +25,20 @@ import six
 
 @six.add_metaclass(abc.ABCMeta)
 class AbstractGame(object):
-  """Abstract base class for Pycolab games."""
+    """Abstract base class for Pycolab games."""
 
-  @abc.abstractmethod
-  def __init__(self, rng, **settings):
-    """Initialize the game."""
+    @abc.abstractmethod
+    def __init__(self, rng, **settings):
+        """Initialize the game."""
 
-  @abc.abstractproperty
-  def num_actions(self):
-    """Number of possible actions in the game."""
+    @abc.abstractproperty
+    def num_actions(self):
+        """Number of possible actions in the game."""
 
-  @abc.abstractproperty
-  def colours(self):
-    """Symbol to colour map for the game."""
+    @abc.abstractproperty
+    def colours(self):
+        """Symbol to colour map for the game."""
 
-  @abc.abstractmethod
-  def make_episode(self):
-    """Factory method for generating new episodes of the game."""
+    @abc.abstractmethod
+    def make_episode(self):
+        """Factory method for generating new episodes of the game."""

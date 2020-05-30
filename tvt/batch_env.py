@@ -29,41 +29,41 @@ from tvt import nest_utils
 
 
 class BatchEnv(object):
-  """Wrapper that steps multiple environments in separate threads.
+    """Wrapper that steps multiple environments in separate threads.
 
   The threads are stepped in lock step, so all threads progress by one step
   before any move to the next step.
   """
 
-  def __init__(self, batch_size, env_builder, **env_kwargs):
-    self.batch_size = batch_size
-    self._envs = [env_builder(**env_kwargs) for _ in range(batch_size)]
-    self._num_actions = self._envs[0].num_actions
-    self._observation_shape = self._envs[0].observation_shape
-    self._episode_length = self._envs[0].episode_length
+    def __init__(self, batch_size, env_builder, **env_kwargs):
+        self.batch_size = batch_size
+        self._envs = [env_builder(**env_kwargs) for _ in range(batch_size)]
+        self._num_actions = self._envs[0].num_actions
+        self._observation_shape = self._envs[0].observation_shape
+        self._episode_length = self._envs[0].episode_length
 
-    self._executor = futures.ThreadPoolExecutor(max_workers=self.batch_size)
+        self._executor = futures.ThreadPoolExecutor(max_workers=self.batch_size)
 
-  def reset(self):
-    """Reset the entire batch of environments."""
+    def reset(self):
+        """Reset the entire batch of environments."""
 
-    def reset_environment(env):
-      return env.reset()
+        def reset_environment(env):
+            return env.reset()
 
-    try:
-      output_list = []
-      for env in self._envs:
-        output_list.append(self._executor.submit(reset_environment, env))
-      output_list = [env_output.result() for env_output in output_list]
-    except KeyboardInterrupt:
-      self._executor.shutdown(wait=True)
-      raise
+        try:
+            output_list = []
+            for env in self._envs:
+                output_list.append(self._executor.submit(reset_environment, env))
+            output_list = [env_output.result() for env_output in output_list]
+        except KeyboardInterrupt:
+            self._executor.shutdown(wait=True)
+            raise
 
-    observations, rewards = nest_utils.nest_stack(output_list)
-    return observations, rewards
+        observations, rewards = nest_utils.nest_stack(output_list)
+        return observations, rewards
 
-  def step(self, action_list):
-    """Step batch of envs.
+    def step(self, action_list):
+        """Step batch of envs.
 
     Args:
       action_list: A list of actions, one per environment in the batch. Each one
@@ -78,33 +78,33 @@ class BatchEnv(object):
           environments in the batch.
     """
 
-    def step_environment(env, action):
-      return env.step(action)
+        def step_environment(env, action):
+            return env.step(action)
 
-    try:
-      output_list = []
-      for env, action in zip(self._envs, action_list):
-        output_list.append(self._executor.submit(step_environment, env, action))
-      output_list = [env_output.result() for env_output in output_list]
-    except KeyboardInterrupt:
-      self._executor.shutdown(wait=True)
-      raise
+        try:
+            output_list = []
+            for env, action in zip(self._envs, action_list):
+                output_list.append(self._executor.submit(step_environment, env, action))
+            output_list = [env_output.result() for env_output in output_list]
+        except KeyboardInterrupt:
+            self._executor.shutdown(wait=True)
+            raise
 
-    observations, rewards = nest_utils.nest_stack(output_list)
-    return observations, rewards
+        observations, rewards = nest_utils.nest_stack(output_list)
+        return observations, rewards
 
-  @property
-  def observation_shape(self):
-    """Observation shape per environment, i.e. with no batch dimension."""
-    return self._observation_shape
+    @property
+    def observation_shape(self):
+        """Observation shape per environment, i.e. with no batch dimension."""
+        return self._observation_shape
 
-  @property
-  def num_actions(self):
-    return self._num_actions
+    @property
+    def num_actions(self):
+        return self._num_actions
 
-  @property
-  def episode_length(self):
-    return self._episode_length
+    @property
+    def episode_length(self):
+        return self._episode_length
 
-  def last_phase_rewards(self):
-    return [env.last_phase_reward() for env in self._envs]
+    def last_phase_rewards(self):
+        return [env.last_phase_reward() for env in self._envs]

@@ -22,7 +22,7 @@ from cs_gan import utils
 
 
 class GAN(object):
-  """Standard generative adversarial network setup.
+    """Standard generative adversarial network setup.
 
   The aim of the generator is to generate samples which fool a discriminator.
   Does not make any assumptions about the discriminator and generator loss
@@ -38,9 +38,16 @@ class GAN(object):
   Gaussian or uniform).
   """
 
-  def __init__(self, discriminator, generator, num_z_iters, z_step_size,
-               z_project_method, optimisation_cost_weight):
-    """Constructs the module.
+    def __init__(
+        self,
+        discriminator,
+        generator,
+        num_z_iters,
+        z_step_size,
+        z_project_method,
+        optimisation_cost_weight,
+    ):
+        """Constructs the module.
 
     Args:
       discriminator: The discriminator network. A sonnet module. See `nets.py`.
@@ -53,18 +60,18 @@ class GAN(object):
       optimisation_cost_weight: a float, how much to penalise the distance of z
         moved by latent optimisation.
     """
-    self._discriminator = discriminator
-    self.generator = generator
-    self.num_z_iters = num_z_iters
-    self.z_project_method = z_project_method
-    self._log_step_size_module = snt.TrainableVariable(
-        [],
-        initializers={'w': tf.constant_initializer(math.log(z_step_size))})
-    self.z_step_size = tf.exp(self._log_step_size_module())
-    self._optimisation_cost_weight = optimisation_cost_weight
+        self._discriminator = discriminator
+        self.generator = generator
+        self.num_z_iters = num_z_iters
+        self.z_project_method = z_project_method
+        self._log_step_size_module = snt.TrainableVariable(
+            [], initializers={"w": tf.constant_initializer(math.log(z_step_size))}
+        )
+        self.z_step_size = tf.exp(self._log_step_size_module())
+        self._optimisation_cost_weight = optimisation_cost_weight
 
-  def connect(self, data, generator_inputs):
-    """Connects the components and returns the losses, outputs and debug ops.
+    def connect(self, data, generator_inputs):
+        """Connects the components and returns the losses, outputs and debug ops.
 
     Args:
       data: a `tf.Tensor`: `[batch_size, ...]`. There are no constraints on the
@@ -79,80 +86,86 @@ class GAN(object):
     Returns:
       An `ModelOutputs` instance.
     """
-    samples, optimised_z = utils.optimise_and_sample(
-        generator_inputs, self, data, is_training=True)
-    optimisation_cost = utils.get_optimisation_cost(generator_inputs,
-                                                    optimised_z)
+        samples, optimised_z = utils.optimise_and_sample(
+            generator_inputs, self, data, is_training=True
+        )
+        optimisation_cost = utils.get_optimisation_cost(generator_inputs, optimised_z)
 
-    # Pass in the labels to the discriminator in case we are using a
-    # discriminator which makes use of labels. The labels can be None.
-    disc_data_logits = self._discriminator(data)
-    disc_sample_logits = self._discriminator(samples)
+        # Pass in the labels to the discriminator in case we are using a
+        # discriminator which makes use of labels. The labels can be None.
+        disc_data_logits = self._discriminator(data)
+        disc_sample_logits = self._discriminator(samples)
 
-    disc_data_loss = utils.cross_entropy_loss(
-        disc_data_logits,
-        tf.ones(tf.shape(disc_data_logits[:, 0]), dtype=tf.int32))
+        disc_data_loss = utils.cross_entropy_loss(
+            disc_data_logits, tf.ones(tf.shape(disc_data_logits[:, 0]), dtype=tf.int32)
+        )
 
-    disc_sample_loss = utils.cross_entropy_loss(
-        disc_sample_logits,
-        tf.zeros(tf.shape(disc_sample_logits[:, 0]), dtype=tf.int32))
+        disc_sample_loss = utils.cross_entropy_loss(
+            disc_sample_logits,
+            tf.zeros(tf.shape(disc_sample_logits[:, 0]), dtype=tf.int32),
+        )
 
-    disc_loss = disc_data_loss + disc_sample_loss
+        disc_loss = disc_data_loss + disc_sample_loss
 
-    generator_loss = utils.cross_entropy_loss(
-        disc_sample_logits,
-        tf.ones(tf.shape(disc_sample_logits[:, 0]), dtype=tf.int32))
+        generator_loss = utils.cross_entropy_loss(
+            disc_sample_logits,
+            tf.ones(tf.shape(disc_sample_logits[:, 0]), dtype=tf.int32),
+        )
 
-    optimization_components = self._build_optimization_components(
-        discriminator_loss=disc_loss, generator_loss=generator_loss,
-        optimisation_cost=optimisation_cost)
+        optimization_components = self._build_optimization_components(
+            discriminator_loss=disc_loss,
+            generator_loss=generator_loss,
+            optimisation_cost=optimisation_cost,
+        )
 
-    debug_ops = {}
-    debug_ops['z_step_size'] = self.z_step_size
-    debug_ops['disc_data_loss'] = disc_data_loss
-    debug_ops['disc_sample_loss'] = disc_sample_loss
-    debug_ops['disc_loss'] = disc_loss
-    debug_ops['gen_loss'] = generator_loss
-    debug_ops['opt_cost'] = optimisation_cost
+        debug_ops = {}
+        debug_ops["z_step_size"] = self.z_step_size
+        debug_ops["disc_data_loss"] = disc_data_loss
+        debug_ops["disc_sample_loss"] = disc_sample_loss
+        debug_ops["disc_loss"] = disc_loss
+        debug_ops["gen_loss"] = generator_loss
+        debug_ops["opt_cost"] = optimisation_cost
 
-    return utils.ModelOutputs(
-        optimization_components, debug_ops)
+        return utils.ModelOutputs(optimization_components, debug_ops)
 
-  def gen_loss_fn(self, data, samples):
-    """Generator loss as latent optimisation's error function."""
-    del data
-    disc_sample_logits = self._discriminator(samples)
-    generator_loss = utils.cross_entropy_loss(
-        disc_sample_logits,
-        tf.ones(tf.shape(disc_sample_logits[:, 0]), dtype=tf.int32))
-    return generator_loss
+    def gen_loss_fn(self, data, samples):
+        """Generator loss as latent optimisation's error function."""
+        del data
+        disc_sample_logits = self._discriminator(samples)
+        generator_loss = utils.cross_entropy_loss(
+            disc_sample_logits,
+            tf.ones(tf.shape(disc_sample_logits[:, 0]), dtype=tf.int32),
+        )
+        return generator_loss
 
-  def _build_optimization_components(
-      self, generator_loss=None, discriminator_loss=None,
-      optimisation_cost=None):
-    """Create the optimization components for this module."""
+    def _build_optimization_components(
+        self, generator_loss=None, discriminator_loss=None, optimisation_cost=None
+    ):
+        """Create the optimization components for this module."""
 
-    discriminator_vars = _get_and_check_variables(self._discriminator)
-    generator_vars = _get_and_check_variables(self.generator)
-    step_vars = _get_and_check_variables(self._log_step_size_module)
+        discriminator_vars = _get_and_check_variables(self._discriminator)
+        generator_vars = _get_and_check_variables(self.generator)
+        step_vars = _get_and_check_variables(self._log_step_size_module)
 
-    optimization_components = collections.OrderedDict()
-    optimization_components['disc'] = utils.OptimizationComponent(
-        discriminator_loss, discriminator_vars)
-    optimization_components['gen'] = utils.OptimizationComponent(
-        generator_loss
-        + self._optimisation_cost_weight * optimisation_cost,
-        generator_vars + step_vars)
-    return optimization_components
+        optimization_components = collections.OrderedDict()
+        optimization_components["disc"] = utils.OptimizationComponent(
+            discriminator_loss, discriminator_vars
+        )
+        optimization_components["gen"] = utils.OptimizationComponent(
+            generator_loss + self._optimisation_cost_weight * optimisation_cost,
+            generator_vars + step_vars,
+        )
+        return optimization_components
 
 
 def _get_and_check_variables(module):
-  module_variables = module.get_all_variables()
-  if not module_variables:
-    raise ValueError(
-        'Module {} has no variables! Variables needed for training.'.format(
-            module.module_name))
+    module_variables = module.get_all_variables()
+    if not module_variables:
+        raise ValueError(
+            "Module {} has no variables! Variables needed for training.".format(
+                module.module_name
+            )
+        )
 
-  # TensorFlow optimizers require lists to be passed in.
-  return list(module_variables)
-
+    # TensorFlow optimizers require lists to be passed in.
+    return list(module_variables)

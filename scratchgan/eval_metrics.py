@@ -22,7 +22,7 @@ import tensorflow_hub as hub
 
 
 def fid(generated_sentences, real_sentences):
-  """Compute FID rn sentences using pretrained universal sentence encoder.
+    """Compute FID rn sentences using pretrained universal sentence encoder.
 
   Args:
     generated_sentences: list of N strings.
@@ -31,18 +31,19 @@ def fid(generated_sentences, real_sentences):
   Returns:
     Frechet distance between activations.
   """
-  embed = hub.Module("https://tfhub.dev/google/universal-sentence-encoder/2")
-  real_embed = embed(real_sentences)
-  generated_embed = embed(generated_sentences)
-  distance = tfgan.eval.frechet_classifier_distance_from_activations(
-      real_embed, generated_embed)
+    embed = hub.Module("https://tfhub.dev/google/universal-sentence-encoder/2")
+    real_embed = embed(real_sentences)
+    generated_embed = embed(generated_sentences)
+    distance = tfgan.eval.frechet_classifier_distance_from_activations(
+        real_embed, generated_embed
+    )
 
-  # Restrict the thread pool size to prevent excessive CPU usage.
-  config = tf.ConfigProto()
-  config.intra_op_parallelism_threads = 16
-  config.inter_op_parallelism_threads = 16
-  with tf.Session(config=config) as session:
-    session.run(tf.global_variables_initializer())
-    session.run(tf.tables_initializer())
-    distance_np = session.run(distance)
-  return distance_np
+    # Restrict the thread pool size to prevent excessive CPU usage.
+    config = tf.ConfigProto()
+    config.intra_op_parallelism_threads = 16
+    config.inter_op_parallelism_threads = 16
+    with tf.Session(config=config) as session:
+        session.run(tf.global_variables_initializer())
+        session.run(tf.tables_initializer())
+        distance_np = session.run(distance)
+    return distance_np

@@ -22,37 +22,42 @@ from unrestricted_advex import eval_kit
 
 
 def _preprocess_image(image):
-  image = tf.image.central_crop(image, central_fraction=0.875)
-  image = tf.image.resize_bilinear(image, [224, 224], align_corners=False)
-  return image
+    image = tf.image.central_crop(image, central_fraction=0.875)
+    image = tf.image.resize_bilinear(image, [224, 224], align_corners=False)
+    return image
 
 
 def test_preprocess(image):
-  image = _preprocess_image(image)
-  image = tf.subtract(image, 0.5)
-  image = tf.multiply(image, 2.0)
-  return image
+    image = _preprocess_image(image)
+    image = tf.subtract(image, 0.5)
+    image = tf.multiply(image, 2.0)
+    return image
 
 
 def main():
-  g = tf.Graph()
-  with g.as_default():
-    input_tensor = tf.placeholder(tf.float32, (None, 224, 224, 3))
-    x_np = test_preprocess(input_tensor)
-    raw_module_1 = hub.Module(
-        "https://tfhub.dev/deepmind/llr-pretrain-adv/latents/1")
-    raw_module_2 = hub.Module(
-        "https://tfhub.dev/deepmind/llr-pretrain-adv/linear/1")
-    latents = raw_module_1(dict(inputs=x_np, decay_rate=0.1))
-    logits = raw_module_2(dict(inputs=latents))
-    logits = tf.squeeze(logits, axis=[1, 2])
-    two_class_logits = tf.concat([tf.nn.relu(-logits[:, 1:]),
-                                  tf.nn.relu(logits[:, 1:])], axis=1)
-    sess = tf.train.SingularMonitoredSession()
-    def model(x_np):
-      return sess.run(two_class_logits, feed_dict={input_tensor: x_np})
+    g = tf.Graph()
+    with g.as_default():
+        input_tensor = tf.placeholder(tf.float32, (None, 224, 224, 3))
+        x_np = test_preprocess(input_tensor)
+        raw_module_1 = hub.Module(
+            "https://tfhub.dev/deepmind/llr-pretrain-adv/latents/1"
+        )
+        raw_module_2 = hub.Module(
+            "https://tfhub.dev/deepmind/llr-pretrain-adv/linear/1"
+        )
+        latents = raw_module_1(dict(inputs=x_np, decay_rate=0.1))
+        logits = raw_module_2(dict(inputs=latents))
+        logits = tf.squeeze(logits, axis=[1, 2])
+        two_class_logits = tf.concat(
+            [tf.nn.relu(-logits[:, 1:]), tf.nn.relu(logits[:, 1:])], axis=1
+        )
+        sess = tf.train.SingularMonitoredSession()
 
-    eval_kit.evaluate_bird_or_bicycle_model(model, model_name="llr_resnet")
+        def model(x_np):
+            return sess.run(two_class_logits, feed_dict={input_tensor: x_np})
+
+        eval_kit.evaluate_bird_or_bicycle_model(model, model_name="llr_resnet")
+
 
 if __name__ == "__main__":
-  main()
+    main()
