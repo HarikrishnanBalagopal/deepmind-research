@@ -29,11 +29,12 @@ from tensorflow.compat.v1.io import gfile
 #   lengths[i, 0] is the number of non-pad tokens in sequences[i, :]
 FILENAMES = {
     "emnlp2017": ("train.json", "valid.json", "test.json"),
+    "quoratext": ("quora_text_train_set_pretrained_vocab.json", "quora_text_valid_set_pretrained_vocab.json", "quora_text_test_set_pretrained_vocab.json"),
 }
 
 # EMNLP2017 sentences have max length 50, add one for a PAD token so that all
 # sentences end with PAD.
-MAX_TOKENS_SEQUENCE = {"emnlp2017": 52}
+MAX_TOKENS_SEQUENCE = {"emnlp2017": 52, "quoratext": 26}
 
 UNK = "<unk>"
 PAD = " "
@@ -134,6 +135,15 @@ def get_raw_data(data_path, dataset, truncate_vocab=20000):
         json_data_valid = json.load(json_file)
     with gfile.GFile(test_path, "r") as json_file:
         json_data_test = json.load(json_file)
+
+    if dataset == "quoratext":
+        train_data = {k:np.array(v, dtype=np.int32) for k, v in json_data_train.items()}
+        valid_data = {k:np.array(v, dtype=np.int32) for k, v in json_data_valid.items()}
+        word_to_id_path = os.path.join(data_path, 'quora_text_pretrained_vocab.json')
+        with open(word_to_id_path, 'r') as f:
+            word_to_id_truncated = json.load(f) # NOT TRUNCATED
+        print('LOADED QUORA TEXT DATASET!!!!')
+        return train_data, valid_data, word_to_id_truncated
 
     word_to_id = _build_vocab(json_data_train)
     logging.info("Full vocab length: %d", len(word_to_id))

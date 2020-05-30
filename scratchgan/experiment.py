@@ -72,7 +72,7 @@ EVALUATOR_SLEEP_PERIOD = 60  # Seconds evaluator sleeps if nothing to do.
 
 
 def main(_):
-    tf.debugging.set_log_device_placement(True)
+#     tf.debugging.set_log_device_placement(True)
 
     gpus = tf.config.experimental.list_physical_devices("GPU")
     if gpus:
@@ -130,6 +130,7 @@ def train(config):
     tf.reset_default_graph()
     np.set_printoptions(precision=4)
 
+    print('TRAINING ON DATASET', config.dataset, '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     # Get data.
     raw_data = reader.get_raw_data(data_path=config.data_dir, dataset=config.dataset)
     train_data, valid_data, word_to_id = raw_data
