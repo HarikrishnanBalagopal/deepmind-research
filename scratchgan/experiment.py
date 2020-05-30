@@ -18,6 +18,7 @@ from __future__ import print_function
 import os
 import time
 
+from tqdm import tqdm
 from absl import app
 from absl import flags
 from absl import logging
@@ -293,7 +294,7 @@ def train(config):
         if latest_ckpt:
             saver.restore(sess, latest_ckpt)
 
-        for step in xrange(config.num_steps):
+        for step in tqdm(xrange(config.num_steps)):
             real_data_np = iterator.next()
             train_feed = {
                 real_sequence: real_data_np["sequence"],
@@ -311,6 +312,9 @@ def train(config):
                 gen_sequence_np, metrics_np = sess.run(
                     [gen_outputs["sequence"], metrics], feed_dict=train_feed
                 )
+                np.save(config.data_dir + '/iter_' + str(step) + '.npy', gen_sequence_np)
+                with open(config.data_dir + '/iter_' + str(step) + '.txt', 'w') as f:
+                    f.write('\n'.join(utils.sequence_to_sentence(s, id_to_word) for s in gen_sequence_np))
                 metrics_np["gen_sentence"] = utils.sequence_to_sentence(
                     gen_sequence_np[0, :], id_to_word
                 )
