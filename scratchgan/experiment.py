@@ -313,8 +313,8 @@ def train(config):
                     [gen_outputs["sequence"], metrics], feed_dict=train_feed
                 )
                 np.save(config.data_dir + '/iter_' + str(step) + '.npy', gen_sequence_np)
-                with open(config.data_dir + '/iter_' + str(step) + '.txt', 'w') as f:
-                    f.write('\n'.join(utils.sequence_to_sentence(s, id_to_word) for s in gen_sequence_np))
+                with open(config.data_dir + '/iter_' + str(step) + '.txt', 'wb') as f:
+                    f.write('\n'.join(utils.sequence_to_sentence(s, id_to_word) for s in gen_sequence_np).encode('utf-8'))
                 metrics_np["gen_sentence"] = utils.sequence_to_sentence(
                     gen_sequence_np[0, :], id_to_word
                 )
