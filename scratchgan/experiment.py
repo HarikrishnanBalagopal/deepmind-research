@@ -185,7 +185,7 @@ def train(config):
         trainable_embedding_size=config.trainable_embedding_size,
         input_dropout=config.gen_input_dropout,
         output_dropout=config.gen_output_dropout,
-        pad_token=reader.PAD_INT,
+        pad_token=(word_to_id["<PAD>"] if config.dataset == "quoratext" else reader.PAD_INT),
         embedding_source=embedding_source,
         vocab_file=vocab_file,
     )
@@ -198,7 +198,7 @@ def train(config):
         trainable_embedding_size=config.trainable_embedding_size,
         embedding_source=embedding_source,
         use_layer_norm=config.layer_norm_disc,
-        pad_token=reader.PAD_INT,
+        pad_token=(word_to_id["<PAD>"] if config.dataset == "quoratext" else reader.PAD_INT),
         vocab_file=vocab_file,
         dropout=config.disc_dropout,
     )
@@ -409,7 +409,7 @@ def evaluate_pair(
         trainable_embedding_size=config.trainable_embedding_size,
         input_dropout=config.gen_input_dropout,
         output_dropout=config.gen_output_dropout,
-        pad_token=reader.PAD_INT,
+        pad_token=(word_to_id["<PAD>"] if config.dataset == "quoratext" else reader.PAD_INT),
         embedding_source=embedding_source,
         vocab_file=vocab_file,
     )
@@ -421,7 +421,7 @@ def evaluate_pair(
         trainable_embedding_size=config.trainable_embedding_size,
         embedding_source=embedding_source,
         use_layer_norm=config.layer_norm_disc,
-        pad_token=reader.PAD_INT,
+        pad_token=(word_to_id["<PAD>"] if config.dataset == "quoratext" else reader.PAD_INT),
         vocab_file=vocab_file,
         dropout=config.disc_dropout,
     )

@@ -211,11 +211,12 @@ def get_first_occurrence_indices(reference, symbol, optimize_for_tpu=False):
 def sequence_to_sentence(sequence, id_to_word):
     """Turn a sequence into a sentence , inverse of sentence_to_sequence."""
     words = []
+    unk_word = "<UNK>" if "<UNK>" in id_to_word.values() else reader.UNK
     for token_index in sequence:
         if token_index in id_to_word:
             words.append(id_to_word[token_index])
         else:
-            words.append(reader.UNK)
+            words.append(unk_word)
     return " ".join(words)
 
 
