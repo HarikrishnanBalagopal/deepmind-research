@@ -28,7 +28,7 @@ from tensorflow.compat.v1.io import gfile
 # lengths: [N, 2] array of int32, such that
 #   lengths[i, 0] is the number of non-pad tokens in sequences[i, :]
 FILENAMES = {
-    "emnlp2017": ("train.json", "valid.json", "test.json"),
+    "emnlp2017": ("emnlp_2017_news_train_set_pretrained_vocab.json", "emnlp_2017_news_valid_set_pretrained_vocab.json", "emnlp_2017_news_test_set_pretrained_vocab.json"),
     "quoratext": ("quora_text_train_set_pretrained_vocab.json", "quora_text_valid_set_pretrained_vocab.json", "quora_text_test_set_pretrained_vocab.json"),
 }
 
@@ -136,13 +136,13 @@ def get_raw_data(data_path, dataset, truncate_vocab=20000):
     with gfile.GFile(test_path, "r") as json_file:
         json_data_test = json.load(json_file)
 
-    if dataset == "quoratext":
+    if dataset == "quoratext" or dataset == "emnlp2017":
         train_data = {k:np.array(v, dtype=np.int32) for k, v in json_data_train.items()}
         valid_data = {k:np.array(v, dtype=np.int32) for k, v in json_data_valid.items()}
         word_to_id_path = os.path.join(data_path, 'quora_text_pretrained_vocab.json')
         with open(word_to_id_path, 'r') as f:
             word_to_id_truncated = json.load(f) # NOT TRUNCATED
-        print('LOADED QUORA TEXT DATASET!!!!')
+        print("LOADED", dataset, "DATASET!!!!")
         return train_data, valid_data, word_to_id_truncated
 
     word_to_id = _build_vocab(json_data_train)
